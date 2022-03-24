@@ -85,14 +85,13 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
                     
     # 分支4 全部求平均后，再利用expand_dims扩充维度，之后利用1x1卷积调整通道
     b4 = GlobalAveragePooling2D()(x)
-    b4 = Lambda(lambda x: tf.expand_dims(x, 1))(b4)
-    b4 = Lambda(lambda x: tf.expand_dims(x, 1))(b4)
+    b4 = tf.expand_dims(x, 1)(b4)
+    b4 = tf.expand_dims(x, 1)(b4)
     b4 = Conv2D(256, (1, 1), padding='same', use_bias=False, name='image_pooling')(b4)
     b4 = BatchNormalization(name='image_pooling_BN', epsilon=1e-5)(b4)
     b4 = Activation('relu')(b4)
     # 直接利用resize_images扩充hw
-    b4 = Lambda(lambda x: tf.image.resize(x, size_before[1:3]))(b4)
-
+    b4 = tf.image.resize(x, size_before[1:3])(b4)
     #-----------------------------------------#
     #   将五个分支的内容堆叠起来
     #   然后1x1卷积整合特征。
@@ -108,7 +107,7 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     #-----------------------------------------#
     #   将加强特征边上采样
     #-----------------------------------------#
-    x = Lambda(lambda xx: tf.image.resize(x, size_before[1:3]))(x)
+    x = tf.image.resize(x, size_before[1:3])(x)
     #----------------------------------#
     #   浅层特征边
     #----------------------------------#
@@ -132,7 +131,7 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     size_before3 = tf.shape(img_input)
     # 512,512,21
     x = Conv2D(num_classes, (1, 1), padding='same')(x)
-    x = Lambda(lambda xx:tf.image.resize(x, size_before[1:3]))(x)
+    x = tf.image.resize(x, size_before[1:3])(x)
     x = Softmax()(x)
 
     model = Model(img_input, x, name='deeplabv3plus')
