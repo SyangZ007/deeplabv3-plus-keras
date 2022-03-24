@@ -63,7 +63,6 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
         raise ValueError('Unsupported backbone - `{}`, Use mobilenet, xception.'.format(backbone))
 
     size_before = tf.shape(x)
-    print('size_before',size_before)
     ############################################
     #   一共五个分支
     #   ASPP特征提取模块
@@ -106,11 +105,10 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     x = Dropout(0.1)(x)
     ############ASPP结构ending#################
     skip_size = tf.shape(skip1)
-    print('skip_size',skip_size)
     #-----------------------------------------#
     #   将加强特征边上采样
     #-----------------------------------------#
-    x = tf.image.resize(x, size_before[1:3])
+    x = tf.image.resize(x, skip_size[1:3])
     #----------------------------------#
     #   浅层特征边
     #----------------------------------#
@@ -121,7 +119,6 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     #-----------------------------------------#
     #   与浅层特征堆叠后利用卷积进行特征提取
     #-----------------------------------------#
-    print(x.shape,dec_skip1.shape)
     x = Concatenate()([x, dec_skip1])
     x = SepConv_BN(x, 256, 'decoder_conv0',
                     depth_activation=True, epsilon=1e-5)
