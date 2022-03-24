@@ -1,7 +1,7 @@
 import tensorflow as tf
 #from keras import backend as K
 from tensorflow.keras.layers import (Activation, BatchNormalization, Concatenate, Conv2D,
-                          DepthwiseConv2D, Dropout, GlobalAveragePooling2D,
+                          DepthwiseConv2D, Dropout, GlobalAveragePooling2D,Reshape,
                           Input, Lambda, Softmax, ZeroPadding2D)
 from tensorflow.keras.models import Model
 
@@ -63,12 +63,12 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
         raise ValueError('Unsupported backbone - `{}`, Use mobilenet, xception.'.format(backbone))
 
     size_before = tf.shape(x)
-    print(size_before)
-    #-----------------------------------------#
+    print('size_before',size_before)
+    ############################################
     #   一共五个分支
     #   ASPP特征提取模块
     #   利用不同膨胀率的膨胀卷积进行特征提取
-    #-----------------------------------------#
+    ############################################
     # 分支0
     b0 = Conv2D(256, (1, 1), padding='same', use_bias=False, name='aspp0')(x)
     b0 = BatchNormalization(name='aspp0_BN', epsilon=1e-5)(b0)
@@ -85,12 +85,10 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
                     rate=atrous_rates[2], depth_activation=True, epsilon=1e-5)
                     
     # 分支4 全部求平均后，再利用expand_dims扩充维度，之后利用1x1卷积调整通道
-    b4 = GlobalAveragePooling2D()(x)
-    print(b4.shape)
-    print(type(b4))
+    b4 = GlobalAveragePooling2D()(x)#shape:(None,channel)
 
-    b4 = tf.expand_dims(x, 1)(b4)
-    b4 = tf.expand_dims(x, 1)(b4)
+
+    b4 = Reshape((1,1,b4.shape[-1]))(b4)#(None,1,1,channel)
     b4 = Conv2D(256, (1, 1), padding='same', use_bias=False, name='image_pooling')(b4)
     b4 = BatchNormalization(name='image_pooling_BN', epsilon=1e-5)(b4)
     b4 = Activation('relu')(b4)
