@@ -15,7 +15,6 @@ def relu6(x):
     return relu(x, max_value=6)
 
 def _inverted_res_block(inputs, expansion, stride, alpha, filters, block_id, skip_connection, rate=1):
-    print(inputs)
     in_channels = inputs.shape[-1]
     pointwise_filters = _make_divisible(int(filters * alpha), 8)
     prefix = 'expanded_conv_{}_'.format(block_id)
@@ -33,7 +32,6 @@ def _inverted_res_block(inputs, expansion, stride, alpha, filters, block_id, ski
         x = Activation(relu6, name=prefix + 'expand_relu')(x)
     else:
         prefix = 'expanded_conv_'
-
     #----------------------------------------------------#
     #   利用深度可分离卷积进行特征提取
     #----------------------------------------------------#
@@ -74,7 +72,6 @@ def mobilenetV2(inputs, alpha=1, downsample_factor=8):
         atrous_rates = (6, 12, 18)
     else:
         raise ValueError('Unsupported factor - `{}`, Use 8 or 16.'.format(downsample_factor))
-    print(inputs.shape)
     first_block_filters = _make_divisible(32 * alpha, 8)
     # 512,512,3 -> 256,256,32
     x = Conv2D(first_block_filters,
@@ -84,7 +81,6 @@ def mobilenetV2(inputs, alpha=1, downsample_factor=8):
     x = BatchNormalization(
         epsilon=1e-3, momentum=0.999, name='Conv_BN')(x)
     x = Activation(relu6, name='Conv_Relu6')(x)
-    print(x.shape)
     # 256,256,32 -> 256,256,16
     x = _inverted_res_block(x, filters=16, alpha=alpha, stride=1,
                             expansion=1, block_id=0, skip_connection=False)
