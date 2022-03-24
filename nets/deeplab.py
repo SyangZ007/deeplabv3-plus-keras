@@ -1,9 +1,9 @@
 import tensorflow as tf
 #from keras import backend as K
-from tf.keras.layers import (Activation, BatchNormalization, Concatenate, Conv2D,
+from tensorflow.keras.layers import (Activation, BatchNormalization, Concatenate, Conv2D,
                           DepthwiseConv2D, Dropout, GlobalAveragePooling2D,
                           Input, Lambda, Softmax, ZeroPadding2D)
-from tf.keras.models import Model
+from tensorflow.keras.models import Model
 
 from nets.mobilenet import mobilenetV2
 from nets.Xception import Xception
