@@ -104,8 +104,9 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     x = BatchNormalization(name='concat_projection_BN', epsilon=1e-5)(x)
     x = Activation('relu')(x)
     x = Dropout(0.1)(x)
-
+    ############ASPP结构ending#################
     skip_size = tf.shape(skip1)
+    print('skip_size',skip_size)
     #-----------------------------------------#
     #   将加强特征边上采样
     #-----------------------------------------#
@@ -120,6 +121,7 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     #-----------------------------------------#
     #   与浅层特征堆叠后利用卷积进行特征提取
     #-----------------------------------------#
+    print(x.shape,dec_skip1.shape)
     x = Concatenate()([x, dec_skip1])
     x = SepConv_BN(x, 256, 'decoder_conv0',
                     depth_activation=True, epsilon=1e-5)
@@ -134,7 +136,7 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     # 512,512,21
     x = Conv2D(num_classes, (1, 1), padding='same')(x)
     x = tf.image.resize(x, size_before[1:3])
-    x = Softmax()(x)
+    x = tf.math.sigmoid(x)
 
     model = Model(img_input, x, name='deeplabv3plus')
     return model
