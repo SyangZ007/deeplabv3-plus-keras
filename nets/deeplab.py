@@ -63,6 +63,7 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
         raise ValueError('Unsupported backbone - `{}`, Use mobilenet, xception.'.format(backbone))
 
     size_before = tf.shape(x)
+    print(size_before)
     #-----------------------------------------#
     #   一共五个分支
     #   ASPP特征提取模块
@@ -85,6 +86,9 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
                     
     # 分支4 全部求平均后，再利用expand_dims扩充维度，之后利用1x1卷积调整通道
     b4 = GlobalAveragePooling2D()(x)
+    print(b4.shape)
+    print(type(b4))
+
     b4 = tf.expand_dims(x, 1)(b4)
     b4 = tf.expand_dims(x, 1)(b4)
     b4 = Conv2D(256, (1, 1), padding='same', use_bias=False, name='image_pooling')(b4)
