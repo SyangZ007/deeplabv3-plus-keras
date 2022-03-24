@@ -62,8 +62,7 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     else:
         raise ValueError('Unsupported backbone - `{}`, Use mobilenet, xception.'.format(backbone))
 
-    size_before = tf.shape(x)
-
+    size_before = tf.keras.backend.int_shape(x)
     #-----------------------------------------#
     #   一共五个分支
     #   ASPP特征提取模块
@@ -86,13 +85,13 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
                     
     # 分支4 全部求平均后，再利用expand_dims扩充维度，之后利用1x1卷积调整通道
     b4 = GlobalAveragePooling2D()(x)
-    b4 = Lambda(lambda x: tf.expand_dims(x, 1))(b4)
-    b4 = Lambda(lambda x: tf.expand_dims(x, 1))(b4)
+    b4 = Lambda(lambda x: K.expand_dims(x, 1))(b4)
+    b4 = Lambda(lambda x: K.expand_dims(x, 1))(b4)
     b4 = Conv2D(256, (1, 1), padding='same', use_bias=False, name='image_pooling')(b4)
     b4 = BatchNormalization(name='image_pooling_BN', epsilon=1e-5)(b4)
     b4 = Activation('relu')(b4)
     # 直接利用resize_images扩充hw
-    b4 = Lambda(lambda x: tf.image.resize(x, size_before[1:3]))(b4)
+    b4 = Lambda(lambda x: tf.image.resize_images(x, size_before[1:3], align_corners=True))(b4)
 
     #-----------------------------------------#
     #   将五个分支的内容堆叠起来
@@ -105,11 +104,11 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     x = Activation('relu')(x)
     x = Dropout(0.1)(x)
 
-    skip_size = tf.shape(skip1)
+    skip_size = tf.keras.backend.int_shape(skip1)
     #-----------------------------------------#
     #   将加强特征边上采样
     #-----------------------------------------#
-    x = Lambda(lambda xx: tf.image.resize(xx, skip_size[1:3]))(x)
+    x = Lambda(lambda xx: tf.image.resize_images(x, size_before[1:3], align_corners=True))(x)
     #----------------------------------#
     #   浅层特征边
     #----------------------------------#
@@ -130,10 +129,10 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     #   获得每个像素点的分类
     #-----------------------------------------#
     # 512,512
-    size_before3 = tf.shape(img_input)
+    size_before3 = tf.keras.backend.int_shape(img_input)
     # 512,512,21
     x = Conv2D(num_classes, (1, 1), padding='same')(x)
-    x = Lambda(lambda xx:tf.image.resize(xx,size_before3[1:3]))(x)
+    x = Lambda(lambda xx:tf.image.resize_images(x, size_before[1:3], align_corners=True))(x)
     x = Softmax()(x)
 
     model = Model(img_input, x, name='deeplabv3plus')
