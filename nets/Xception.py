@@ -1,5 +1,5 @@
-from keras import layers
-from keras.layers import (Activation, BatchNormalization, Conv2D,
+from tensorflow.keras import layers
+from tensorflow.keras.layers import (Activation, BatchNormalization, Conv2D,
                           DepthwiseConv2D, ZeroPadding2D)
 
 
