@@ -93,7 +93,7 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     b4 = BatchNormalization(name='image_pooling_BN', epsilon=1e-5)(b4)
     b4 = Activation('relu')(b4)
     # 直接利用resize_images扩充hw
-    b4 = tf.image.resize(x, size_before[1:3])(b4)
+    b4 = tf.image.resize(b4, size_before[1:3])
     #-----------------------------------------#
     #   将五个分支的内容堆叠起来
     #   然后1x1卷积整合特征。
@@ -133,7 +133,7 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     size_before3 = tf.shape(img_input)
     # 512,512,21
     x = Conv2D(num_classes, (1, 1), padding='same')(x)
-    x = tf.image.resize(x, size_before[1:3])(x)
+    x = tf.image.resize(x, size_before[1:3])
     x = Softmax()(x)
 
     model = Model(img_input, x, name='deeplabv3plus')
