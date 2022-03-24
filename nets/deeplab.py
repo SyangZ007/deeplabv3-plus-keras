@@ -109,7 +109,7 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     #-----------------------------------------#
     #   将加强特征边上采样
     #-----------------------------------------#
-    x = tf.image.resize(x, size_before[1:3])(x)
+    x = tf.image.resize(x, size_before[1:3])
     #----------------------------------#
     #   浅层特征边
     #----------------------------------#
