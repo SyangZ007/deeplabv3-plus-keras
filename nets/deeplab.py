@@ -133,7 +133,7 @@ def Deeplabv3(input_shape, num_classes, alpha=1., backbone="mobilenet", downsamp
     # 512,512,21
     x = Conv2D(num_classes, (1, 1), padding='same')(x)
     x = tf.image.resize(x, size_before3[1:3])
-    x = tf.math.sigmoid(x)
+    x = Softmax()(x)
 
     model = Model(img_input, x, name='deeplabv3plus')
     return model
